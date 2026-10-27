@@ -12,7 +12,7 @@ services:
 
   # ───────────────────────────── Front door ─────────────────────────────
   traefik:
-    image: traefik:v3.5
+    image: traefik:v3.6                # 3.6+ is needed for Docker Engine 29 (older versions use a rejected API version)
     command:
       - --providers.swarm=true
       - --providers.swarm.exposedByDefault=false
@@ -72,8 +72,10 @@ services:
       placement:
         constraints: [node.role == manager]
 
+  # The official minio/minio images are no longer published. pgsty/minio is a community build
+  # of the same MinIO server (same commands, settings and S3 API), pinned to one release.
   minio:
-    image: minio/minio
+    image: pgsty/minio:RELEASE.2026-08-04T00-00-00Z
     command: ["server", "/data", "--console-address", ":9001"]
     env_file: .env                     # MINIO_ROOT_USER / MINIO_ROOT_PASSWORD
     ports:
@@ -104,7 +106,7 @@ services:
       interval: 10s
       timeout: 3s
       retries: 3
-      start_period: 60s
+      start_period: 120s   # first start waits for SQL Server
     deploy:
       replicas: 2
       update_config:
@@ -133,7 +135,7 @@ services:
       interval: 10s
       timeout: 3s
       retries: 3
-      start_period: 60s
+      start_period: 120s   # first start waits for SQL Server
     deploy:
       replicas: 1
       update_config:
@@ -172,7 +174,7 @@ services:
       interval: 10s
       timeout: 3s
       retries: 3
-      start_period: 60s
+      start_period: 120s   # first start waits for SQL Server
     deploy:
       replicas: 1
       update_config:

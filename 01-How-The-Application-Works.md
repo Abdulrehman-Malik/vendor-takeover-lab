@@ -1025,7 +1025,7 @@ The lab's Traefik lives in `infra/stack.yml`. Here's a standalone mini version. 
 ```yaml
 services:
   traefik:
-    image: traefik:v3.5
+    image: traefik:v3.6
     command:
       - --providers.swarm=true
       - --providers.swarm.exposedByDefault=false
@@ -1100,7 +1100,7 @@ Once the lab runs, `bash scripts/sql.sh` does the same against the lab's SQL Ser
 ### 9.8 MinIO
 
 ```bash
-docker run -d --name minio-demo -p 9000:9000 -p 9001:9001 -e MINIO_ROOT_USER=demo -e MINIO_ROOT_PASSWORD=demo-password-123 minio/minio server /data --console-address ":9001"
+docker run -d --name minio-demo -p 9000:9000 -p 9001:9001 -e MINIO_ROOT_USER=demo -e MINIO_ROOT_PASSWORD=demo-password-123 pgsty/minio server /data --console-address ":9001"
 ```
 
 Open port **9001**, log in with `demo` / `demo-password-123`, create a bucket `invoices`, and upload any file into a folder `2026/10/`.
@@ -1109,7 +1109,7 @@ Open port **9001**, log in with `demo` / `demo-password-123`, create a bucket `i
 docker rm -f minio-demo
 ```
 
-> In 2025 MinIO cut its community console back to a basic object browser and moved community releases to source only. The existing `minio/minio` image is fine for learning. In the real system, ask which version and licence they run.
+> In 2025 MinIO stopped publishing free ready-made images (`minio/minio` can no longer be downloaded). The lab uses **`pgsty/minio`**, a community build of the same MinIO server with the same commands and S3 API. In the real system, ask which MinIO version and licence they run, and where their images come from.
 
 ✅ **You learned:** buckets, objects and keys. A database row only stores the **key**.
 
