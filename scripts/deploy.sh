@@ -9,7 +9,9 @@ load_versions
 step "docker stack deploy -c infra/stack.yml $STACK"
 docker stack deploy --with-registry-auth -c "$ROOT/infra/stack.yml" "$STACK"
 
-step "Services (replicas fill in as containers start; SQL Server takes ~30-60 s)"
+bash "$ROOT/scripts/sql-tune.sh"
+
+step "Services (replicas fill in as containers start)"
 docker stack services "$STACK"
 echo
 echo "Watch progress with: watch docker stack services $STACK"

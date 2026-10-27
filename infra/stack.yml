@@ -32,6 +32,10 @@ services:
         constraints: [node.role == manager]
 
   # ───────────────────────────── Data tier ──────────────────────────────
+  # One lightweight SQL Server instance (no Always On). The container needs 2 GB to start,
+  # but scripts/sql-tune.sh caps its cache so the instance really uses about 1 GB.
+  # Developer edition (free, full features) is used instead of Express because Express
+  # has no SQL Agent, and the real system relies on SQL Agent jobs.
   sqlserver:
     image: mcr.microsoft.com/mssql/server:2022-latest
     hostname: sqlserver
@@ -39,7 +43,7 @@ services:
       ACCEPT_EULA: "Y"
       MSSQL_PID: Developer
       MSSQL_AGENT_ENABLED: "true"      # SQL Agent jobs (db/agent-jobs)
-      MSSQL_MEMORY_LIMIT_MB: "2048"
+      MSSQL_MEMORY_LIMIT_MB: "2048"    # the minimum SQL Server accepts
     env_file: .env                     # MSSQL_SA_PASSWORD
     ports:
       - "1433:1433"

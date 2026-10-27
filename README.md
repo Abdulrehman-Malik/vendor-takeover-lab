@@ -39,6 +39,7 @@ Stop the Codespace when you're done to save your free hours.
 | `bash scripts/build.sh all` | Build and push all images (tags from `infra/versions.env`) |
 | `bash scripts/deploy.sh` | Deploy the whole stack from Git |
 | `bash scripts/ci.sh <service>` | Local pipeline: test → build → push → rolling update → smoke test |
+| `bash scripts/sql-tune.sh [MB]` | Cap SQL Server's cache (runs automatically after deploy) |
 | `bash scripts/status.sh` | Nodes, stacks, services, HTTP checks |
 | `bash scripts/sql.sh -Q "..."` | Run SQL in the lab's SQL Server |
 | `bash scripts/add-workers.sh 2` | Experimental: simulate 2 extra Swarm nodes |
@@ -80,4 +81,4 @@ The agent only runs while the Codespace is running and `./run.sh` is open. After
 
 - This is a learning lab. Passwords are random but stored in `infra/.env` in plain text **on purpose**; exercise E11 fixes that.
 - Some weaknesses are planted on purpose. The answers are in [docs/instructor-notes.md](docs/instructor-notes.md); try exercise E15 before reading it.
-- SQL Server Always On failover is not part of the lab.
+- SQL Server runs as one lightweight instance (Developer edition, to keep SQL Agent) with its memory capped to about 1 GB. Always On is not part of the lab.

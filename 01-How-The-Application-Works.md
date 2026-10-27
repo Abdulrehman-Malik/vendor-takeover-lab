@@ -771,7 +771,7 @@ The lab lives in the GitHub repo **vendor-takeover-lab** and runs in **GitHub Co
 | 5 Angular apps | 1 Angular app: `web-portal` (served by Nginx) | ✅ |
 | 1 Node.js admin | `admin-node`: health dashboard for every service | ✅ |
 | 21 databases, some shared | 3 databases. **SalesDb is shared** by `orders-api` (schema `orders`), `billing-api` (schema `billing`) and `notification-worker` (plain SQL) | ✅ |
-| SQL Server 2022 + SQL Agent | One SQL Server 2022 container with SQL Agent on. AG failover is **not** covered | ⚠️ Partly |
+| SQL Server 2022 (Always On) + SQL Agent | **One lightweight SQL Server 2022 instance** with SQL Agent, its memory capped to about 1 GB. Always On is left out on purpose | ✅ Except Always On |
 | MinIO, Redis, MongoDB | One container each, used by real code | ✅ |
 | SMTP | **Mailpit**: catches every email in a web inbox | ✅ |
 | Payment gateway | Fake "always approve" endpoint in `billing-api` | ✅ The idea |
@@ -870,7 +870,8 @@ Run them from the repo root in the Codespace terminal.
 | `bash scripts/bootstrap.sh` | Swarm, network, secrets, registry, Portainer (runs on every Codespace start) |
 | `bash scripts/build.sh all` | Build and push every image with the tags in `infra/versions.env` |
 | `bash scripts/build.sh orders-api 7` | Build and push one image with a chosen tag |
-| `bash scripts/deploy.sh` | `docker stack deploy` the whole system from Git |
+| `bash scripts/deploy.sh` | `docker stack deploy` the whole system from Git, then caps SQL Server's memory |
+| `bash scripts/sql-tune.sh [MB]` | Cap SQL Server's cache (default 768 MB) so it uses about 1 GB |
 | `bash scripts/ci.sh orders-api` | The pipeline, locally: test → build → push → rolling update → smoke test |
 | `bash scripts/deploy-service.sh orders-api 7` | Rolling update of one service to tag 7 |
 | `bash scripts/status.sh` | Nodes, stacks, services, and HTTP checks through Traefik |
@@ -881,7 +882,7 @@ Run them from the repo root in the Codespace terminal.
 
 ### 8.7 Running on Docker Desktop instead (optional)
 
-The same repo works on a laptop with Docker Desktop, run from a **WSL Ubuntu** terminal (the scripts are bash). It needs about 6 GB of free memory for the full stack. Your laptop has 8 GB in total, so Codespaces is the better choice.
+The same repo works on a laptop with Docker Desktop, run from a **WSL Ubuntu** terminal (the scripts are bash). The full stack uses about 3–4 GB inside Docker (SQL Server about 1 GB of that, thanks to `scripts/sql-tune.sh`). Your laptop has 8 GB in total, so close other heavy apps first, or use Codespaces.
 
 ---
 
@@ -1092,7 +1093,9 @@ docker rm -f sql
 
 Once the lab runs, `bash scripts/sql.sh` does the same against the lab's SQL Server, and `db/agent-jobs/ArchiveOldOrders.sql` shows a SQL Agent job written as a script (exercise E12).
 
-> **About Always On:** an Availability Group needs two or more SQL Server instances and a listener. Re-read section 3.10 for how it works; the lab runs one instance.
+> **Why so much memory?** SQL Server refuses to start with less than 2 GB available, then fills most of it with cache. The lab caps the cache with `max server memory` (`scripts/sql-tune.sh`), so it really uses about 1 GB. Run `docker stats --no-stream` before and after to see the difference.
+>
+> **About Always On:** the lab uses one instance, with no Availability Group. Section 3.10 explains how AGs work in the real system.
 
 ### 9.8 MinIO
 
