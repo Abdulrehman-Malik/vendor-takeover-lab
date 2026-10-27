@@ -1,0 +1,28 @@
+# Azure DevOps pipeline for web-portal.
+# In a multi-repo setup (like the vendor's 33 repos) this file would sit in the root of the
+# web-portal repo. Here every service lives in one repo, so path filters make each pipeline
+# run only when its own folder changes.
+
+trigger:
+  branches:
+    include: [ main ]
+  paths:
+    include:
+      - src/web-portal/*
+
+pr:
+  branches:
+    include: [ main ]
+  paths:
+    include:
+      - src/web-portal/*
+
+variables:
+  registry: localhost:5000
+
+stages:
+  - template: templates/build-and-deploy.yml
+    parameters:
+      service: web-portal
+      dockerfile: src/web-portal/Dockerfile
+      smokeTestPath: /

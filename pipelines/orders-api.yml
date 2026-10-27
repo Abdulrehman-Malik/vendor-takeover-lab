@@ -1,0 +1,33 @@
+# Azure DevOps pipeline for orders-api.
+# In a multi-repo setup (like the vendor's 33 repos) this file would sit in the root of the
+# orders-api repo. Here every service lives in one repo, so path filters make each pipeline
+# run only when its own folder changes.
+
+trigger:
+  branches:
+    include: [ main ]
+  paths:
+    include:
+      - src/orders-api/*
+      - src/shared-protos/*
+      - tests/Orders.Tests/*
+
+pr:
+  branches:
+    include: [ main ]
+  paths:
+    include:
+      - src/orders-api/*
+      - src/shared-protos/*
+      - tests/Orders.Tests/*
+
+variables:
+  registry: localhost:5000
+
+stages:
+  - template: templates/build-and-deploy.yml
+    parameters:
+      service: orders-api
+      dockerfile: src/orders-api/Dockerfile
+      testProject: tests/Orders.Tests
+      smokeTestPath: /api/orders/version

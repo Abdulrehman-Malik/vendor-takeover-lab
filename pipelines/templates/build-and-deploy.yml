@@ -1,0 +1,70 @@
+# Reusable pipeline template: every service pipeline in this folder calls it.
+#
+#   Stage 1 (CI): unit tests (optional) -> docker build -> docker push
+#   Stage 2 (CD): rolling update of the Swarm service -> smoke test   (main branch only)
+#
+# Runs on a SELF-HOSTED agent pool named "LabPool": an agent installed inside your Codespace,
+# so it can reach the local registry (localhost:5000) and the Swarm. This is the same pattern
+# as the vendor's private build agents. See README.md, "Azure DevOps pipelines".
+#
+# With a real ACR you would replace the docker build/push script with the Docker@2 task and a
+# service connection (shown in comments below).
+
+parameters:
+  - name: service          # Swarm service name without the stack prefix, e.g. orders-api
+    type: string
+  - name: dockerfile
+    type: string
+  - name: testProject      # leave empty when the service has no unit tests
+    type: string
+    default: ''
+  - name: smokeTestPath    # called through Traefik after deploy, e.g. /api/orders/version
+    type: string
+    default: ''
+
+stages:
+  - stage: Build
+    displayName: Build, test, push
+    jobs:
+      - job: Build
+        pool:
+          name: LabPool
+        steps:
+          - checkout: self
+
+          - ${{ if ne(parameters.testProject, '') }}:
+              - script: dotnet test ${{ parameters.testProject }} -c Release
+                displayName: Unit tests (quality gate)
+
+          - script: |
+              set -euo pipefail
+              docker build -f ${{ parameters.dockerfile }} -t $(registry)/${{ parameters.service }}:$(Build.BuildId) .
+              docker push $(registry)/${{ parameters.service }}:$(Build.BuildId)
+            displayName: Build and push image
+
+          # Real ACR version of the step above:
+          # - task: Docker@2
+          #   inputs:
+          #     command: buildAndPush
+          #     containerRegistry: acr-connection      # service connection name
+          #     repository: ${{ parameters.service }}
+          #     Dockerfile: ${{ parameters.dockerfile }}
+          #     buildContext: .
+          #     tags: $(Build.BuildId)
+
+  - stage: Deploy
+    displayName: Deploy to lab Swarm
+    dependsOn: Build
+    condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/main'))
+    jobs:
+      - deployment: Deploy
+        pool:
+          name: LabPool
+        environment: lab            # add an approval check on this environment in Azure DevOps (E13)
+        strategy:
+          runOnce:
+            deploy:
+              steps:
+                - checkout: self    # deployment jobs don't check out the repo by default
+                - script: bash scripts/deploy-service.sh ${{ parameters.service }} $(Build.BuildId) "${{ parameters.smokeTestPath }}"
+                  displayName: Rolling update + smoke test

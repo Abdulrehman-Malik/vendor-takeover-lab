@@ -1,0 +1,16 @@
+# OPTIONAL: Keycloak as the lab's Identity Provider (IDP). Uses ~600 MB of memory.
+#   docker stack deploy -c infra/keycloak.yml idp
+# Then open port 8180 and log in with the KC_BOOTSTRAP_ADMIN_* values from infra/.env.
+# The lab services do not require login; this is for exploring how an IDP issues tokens.
+services:
+  keycloak:
+    image: quay.io/keycloak/keycloak:26.4
+    command: start-dev
+    env_file: .env                     # KC_BOOTSTRAP_ADMIN_USERNAME / KC_BOOTSTRAP_ADMIN_PASSWORD
+    ports:
+      - "8180:8080"
+    networks: [labnet]
+
+networks:
+  labnet:
+    external: true

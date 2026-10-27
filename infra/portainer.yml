@@ -1,0 +1,18 @@
+# Portainer CE: web dashboard over the Swarm. Open port 9443 and create the admin user
+# within 5 minutes of the first start (Portainer locks itself otherwise; run
+# "docker service update --force portainer_portainer" to get another 5 minutes).
+services:
+  portainer:
+    image: portainer/portainer-ce:lts
+    command: -H unix:///var/run/docker.sock
+    ports:
+      - "9443:9443"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - portainerdata:/data
+    deploy:
+      placement:
+        constraints: [node.role == manager]
+
+volumes:
+  portainerdata: {}

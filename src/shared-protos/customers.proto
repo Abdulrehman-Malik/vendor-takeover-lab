@@ -1,0 +1,21 @@
+// The gRPC contract between customers-api (server) and its callers (orders-api).
+// Rule: you may ADD fields with new numbers. Never change or reuse an existing number or type.
+syntax = "proto3";
+
+option csharp_namespace = "Lab.Contracts.Customers";
+
+package customers;
+
+service CustomerService {
+  rpc GetCustomer (GetCustomerRequest) returns (CustomerReply);
+}
+
+message GetCustomerRequest {
+  int32 id = 1;
+}
+
+message CustomerReply {
+  int32 id = 1;
+  string name = 2;
+  string email = 3;
+}

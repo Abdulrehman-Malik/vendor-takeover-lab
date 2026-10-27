@@ -1,0 +1,13 @@
+{
+  "name": "admin-node",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Lab admin dashboard: health of every service.",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "engines": {
+    "node": ">=24"
+  }
+}

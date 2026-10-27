@@ -1,0 +1,20 @@
+// The gRPC contract between billing-api (server) and orders-api (caller).
+syntax = "proto3";
+
+option csharp_namespace = "Lab.Contracts.Billing";
+
+package billing;
+
+service BillingService {
+  rpc CreateInvoice (CreateInvoiceRequest) returns (CreateInvoiceReply);
+}
+
+message CreateInvoiceRequest {
+  int32 order_id = 1;
+  string customer_email = 2;
+  double amount = 3;
+}
+
+message CreateInvoiceReply {
+  int32 invoice_id = 1;
+}

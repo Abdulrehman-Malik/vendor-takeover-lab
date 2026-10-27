@@ -1,0 +1,28 @@
+# Azure DevOps pipeline for documents-api.
+# In a multi-repo setup (like the vendor's 33 repos) this file would sit in the root of the
+# documents-api repo. Here every service lives in one repo, so path filters make each pipeline
+# run only when its own folder changes.
+
+trigger:
+  branches:
+    include: [ main ]
+  paths:
+    include:
+      - src/documents-api/*
+
+pr:
+  branches:
+    include: [ main ]
+  paths:
+    include:
+      - src/documents-api/*
+
+variables:
+  registry: localhost:5000
+
+stages:
+  - template: templates/build-and-deploy.yml
+    parameters:
+      service: documents-api
+      dockerfile: src/documents-api/Dockerfile
+      smokeTestPath: /api/documents

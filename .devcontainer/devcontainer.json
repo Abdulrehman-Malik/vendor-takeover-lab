@@ -1,0 +1,35 @@
+{
+  "name": "Vendor takeover lab",
+  "image": "mcr.microsoft.com/devcontainers/base:ubuntu-24.04",
+  "features": {
+    "ghcr.io/devcontainers/features/docker-in-docker:2": {},
+    "ghcr.io/devcontainers/features/dotnet:2": { "version": "10.0" },
+    "ghcr.io/devcontainers/features/node:1": { "version": "24" }
+  },
+  "hostRequirements": {
+    "cpus": 4,
+    "memory": "16gb"
+  },
+  "postStartCommand": "bash scripts/bootstrap.sh",
+  "forwardPorts": [8000, 8088, 9443, 9001, 8025, 5000, 1433, 8180],
+  "portsAttributes": {
+    "8000": { "label": "Lab portal (Traefik)" },
+    "8088": { "label": "Traefik dashboard" },
+    "9443": { "label": "Portainer", "protocol": "https" },
+    "9001": { "label": "MinIO console" },
+    "8025": { "label": "Mailpit inbox" },
+    "5000": { "label": "Image registry", "onAutoForward": "silent" },
+    "1433": { "label": "SQL Server", "onAutoForward": "silent" },
+    "8180": { "label": "Keycloak (optional)", "onAutoForward": "silent" }
+  },
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "ms-dotnettools.csdevkit",
+        "ms-mssql.mssql",
+        "ms-azuretools.vscode-containers",
+        "angular.ng-template"
+      ]
+    }
+  }
+}

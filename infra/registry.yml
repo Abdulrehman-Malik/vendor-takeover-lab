@@ -1,0 +1,15 @@
+# Local Docker image registry: the lab's stand-in for Azure Container Registry (ACR).
+# Published through the Swarm routing mesh, so localhost:5000 works on every node.
+services:
+  registry:
+    image: registry:2
+    ports:
+      - "5000:5000"
+    volumes:
+      - registrydata:/var/lib/registry
+    deploy:
+      placement:
+        constraints: [node.role == manager]
+
+volumes:
+  registrydata: {}

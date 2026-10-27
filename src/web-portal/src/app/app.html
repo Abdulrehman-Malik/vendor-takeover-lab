@@ -1,0 +1,133 @@
+<header>
+  <h1>Lab Portal</h1>
+  <span class="badge">orders-api {{ version() }}</span>
+  <button type="button" (click)="refresh()">Refresh</button>
+</header>
+
+@if (message()) {
+  <p class="note ok">{{ message() }}</p>
+}
+@if (error()) {
+  <p class="note bad">{{ error() }}</p>
+}
+
+<main>
+  <section>
+    <h2>New order</h2>
+    <form (ngSubmit)="createOrder()">
+      <label>
+        Customer
+        <select name="customer" [(ngModel)]="newOrder.customerId">
+          @for (c of customers(); track c.id) {
+            <option [ngValue]="c.id">{{ c.name }}</option>
+          }
+        </select>
+      </label>
+      <label>Product <input name="product" [(ngModel)]="newOrder.product" required /></label>
+      <label>Quantity <input name="quantity" type="number" min="1" [(ngModel)]="newOrder.quantity" /></label>
+      <label>Unit price <input name="unitPrice" type="number" min="0.01" step="0.01" [(ngModel)]="newOrder.unitPrice" /></label>
+      <button type="submit">Create order</button>
+    </form>
+    <p class="hint">10 or more items get 5% off (tested in tests/Orders.Tests).</p>
+  </section>
+
+  <section>
+    <h2>Orders <small>SQL Server: SalesDb.orders</small></h2>
+    <table>
+      <thead>
+        <tr><th>#</th><th>Customer</th><th>Product</th><th>Qty</th><th>Total</th><th>Created</th><th></th></tr>
+      </thead>
+      <tbody>
+        @for (o of orders(); track o.id) {
+          <tr>
+            <td>{{ o.id }}</td>
+            <td>{{ o.customerId }}</td>
+            <td>{{ o.product }}</td>
+            <td>{{ o.quantity }}</td>
+            <td>{{ o.total | number: '1.2-2' }}</td>
+            <td>{{ o.createdAt | date: 'short' }}</td>
+            <td><button type="button" (click)="showDetails(o.id)">Details</button></td>
+          </tr>
+        } @empty {
+          <tr><td colspan="7">No orders yet.</td></tr>
+        }
+      </tbody>
+    </table>
+
+    @if (selected(); as d) {
+      <div class="details">
+        <strong>Order {{ d.id }}</strong>: {{ d.customerName }} ({{ d.customerEmail }}) bought
+        {{ d.quantity }} × {{ d.product }} for {{ d.total | number: '1.2-2' }}.
+        <br />
+        Served by container <code>{{ d.servedBy }}</code>. Customer name came from customers-api over gRPC;
+        click again within 60 s and orders-api answers from Redis (check its logs for "Cache HIT").
+      </div>
+    }
+  </section>
+
+  <section>
+    <h2>Invoices <small>SQL Server: SalesDb.billing (shared database)</small></h2>
+    <table>
+      <thead>
+        <tr><th>#</th><th>Order</th><th>Email</th><th>Amount</th><th>Email sent</th><th>Paid</th></tr>
+      </thead>
+      <tbody>
+        @for (i of invoices(); track i.id) {
+          <tr>
+            <td>{{ i.id }}</td>
+            <td>{{ i.orderId }}</td>
+            <td>{{ i.customerEmail }}</td>
+            <td>{{ i.amount | number: '1.2-2' }}</td>
+            <td>{{ i.emailSent ? 'yes' : 'pending' }}</td>
+            <td>
+              @if (i.paid) {
+                yes
+              } @else {
+                <button type="button" (click)="pay(i.id)">Pay</button>
+              }
+            </td>
+          </tr>
+        } @empty {
+          <tr><td colspan="6">No invoices yet.</td></tr>
+        }
+      </tbody>
+    </table>
+    <p class="hint">notification-worker emails pending invoices every 30 s. See them in Mailpit.</p>
+  </section>
+
+  <section>
+    <h2>Documents <small>files in MinIO, records in SQL Server: DocumentsDb</small></h2>
+    <div class="row">
+      <label>
+        Order
+        <select name="uploadOrder" [(ngModel)]="uploadOrderId">
+          <option [ngValue]="0">choose…</option>
+          @for (o of orders(); track o.id) {
+            <option [ngValue]="o.id">#{{ o.id }} {{ o.product }}</option>
+          }
+        </select>
+      </label>
+      <input type="file" (change)="onFileChosen($event)" />
+      <button type="button" (click)="upload()">Upload</button>
+    </div>
+    <table>
+      <thead>
+        <tr><th>#</th><th>Order</th><th>File</th><th>MinIO key</th><th>Size</th><th></th></tr>
+      </thead>
+      <tbody>
+        @for (d of documents(); track d.id) {
+          <tr>
+            <td>{{ d.id }}</td>
+            <td>{{ d.orderId }}</td>
+            <td>{{ d.fileName }}</td>
+            <td><code>{{ d.objectKey }}</code></td>
+            <td>{{ d.sizeBytes / 1024 | number: '1.0-1' }} KB</td>
+            <td><a [href]="'/api/documents/' + d.id + '/download'">Download</a></td>
+          </tr>
+        } @empty {
+          <tr><td colspan="6">No documents yet.</td></tr>
+        }
+      </tbody>
+    </table>
+  </section>
+</main>

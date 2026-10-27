@@ -1,0 +1,27 @@
+# Azure DevOps pipeline for notification-worker.
+# In a multi-repo setup (like the vendor's 33 repos) this file would sit in the root of the
+# notification-worker repo. Here every service lives in one repo, so path filters make each pipeline
+# run only when its own folder changes.
+
+trigger:
+  branches:
+    include: [ main ]
+  paths:
+    include:
+      - src/notification-worker/*
+
+pr:
+  branches:
+    include: [ main ]
+  paths:
+    include:
+      - src/notification-worker/*
+
+variables:
+  registry: localhost:5000
+
+stages:
+  - template: templates/build-and-deploy.yml
+    parameters:
+      service: notification-worker
+      dockerfile: src/notification-worker/Dockerfile

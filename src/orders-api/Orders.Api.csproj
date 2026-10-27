@@ -1,0 +1,22 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <ItemGroup>
+    <PackageReference Include="Grpc.Net.ClientFactory" />
+    <PackageReference Include="Google.Protobuf" />
+    <PackageReference Include="Grpc.Tools" PrivateAssets="All" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" PrivateAssets="All" />
+    <PackageReference Include="Microsoft.Extensions.Caching.StackExchangeRedis" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- orders-api is a gRPC CLIENT of customers-api and billing-api -->
+    <Protobuf Include="..\shared-protos\customers.proto" GrpcServices="Client" Link="Protos\customers.proto" />
+    <Protobuf Include="..\shared-protos\billing.proto" GrpcServices="Client" Link="Protos\billing.proto" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="Orders.Tests" />
+  </ItemGroup>
+
+</Project>

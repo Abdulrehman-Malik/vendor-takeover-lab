@@ -1,0 +1,15 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <ItemGroup>
+    <PackageReference Include="Grpc.AspNetCore" />
+    <PackageReference Include="Grpc.AspNetCore.Server.Reflection" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" PrivateAssets="All" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- billing-api is the gRPC SERVER for billing.proto -->
+    <Protobuf Include="..\shared-protos\billing.proto" GrpcServices="Server" Link="Protos\billing.proto" />
+  </ItemGroup>
+
+</Project>
