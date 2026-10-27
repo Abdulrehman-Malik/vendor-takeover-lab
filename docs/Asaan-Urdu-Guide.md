@@ -5,6 +5,8 @@
 > Technical alfaz English mein hi rakhe gaye hain, kyunke code aur commands mein yahi alfaz aate hain.
 >
 > **Tip:** VS Code mein yeh file kholein aur **Ctrl + Shift + V** dabayein, to yeh achhi tarah formatted dikhegi.
+>
+> English mein parhna hai? [Easy-English-Guide.md](Easy-English-Guide.md) dekhein.
 
 ---
 

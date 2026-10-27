@@ -5,7 +5,9 @@ A small, working copy of a vendor-built microservices system, for hands-on pract
 
 📘 **Start with the guide: [01-How-The-Application-Works.md](01-How-The-Application-Works.md).** It explains every component, then walks you through 15 exercises.
 
-🇵🇰 **Bilkul naye hain? Pehle yeh parhein: [docs/Asaan-Urdu-Guide.md](docs/Asaan-Urdu-Guide.md)**: asaan Roman Urdu mein, tasveeron aur misaalon ke saath.
+🌱 **Completely new? Start with the plain-language guides, with pictures and everyday examples:**
+- English: [docs/Easy-English-Guide.md](docs/Easy-English-Guide.md)
+- Roman Urdu: [docs/Asaan-Urdu-Guide.md](docs/Asaan-Urdu-Guide.md)
 
 ```
 Browser ─► Traefik :8000 ─┬─ /              web-portal (Angular)
